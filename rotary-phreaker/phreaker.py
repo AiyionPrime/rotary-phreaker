@@ -3,6 +3,7 @@ import sys
 
 import signal
 from linphone import Linphone
+from pi_device import Pi3Rotary
 
 
 class Daemon:
@@ -10,17 +11,20 @@ class Daemon:
         signal.signal(signal.SIGINT, self.on_sigint)
 
         # todo read config
+        self.pi3 = Pi3Rotary(up_cb=self.on_hook_up, down_cb=self.on_hook_down)
 
-        self.linphone = Linphone()
+        self.linphone = Linphone("samus", "secretpasscode", "Gunship")
 
         # start thread
         self.linphone.start()
 
     def on_hook_up(self):
-        pass
+        print("Hook got lifted.")
+        self.linphone.answer()
 
     def on_hook_down(self):
-        pass
+        print("Hook was put down.")
+        self.linphone.hang_up()
 
     def on_incoming_call(self):
         pass
