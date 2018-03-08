@@ -18,7 +18,8 @@ class Daemon:
         password = config.get("Credentials", "password")
         host = config.get("Credentials", "hostname")
 
-        self.pi3 = Pi3Rotary(up_cb=self.on_hook_up, down_cb=self.on_hook_down)
+        self.pi3 = Pi3Rotary(up_cb=self.on_hook_up, down_cb=self.on_hook_down,
+                             rotaryplate_not_home_cb=self.rotating, rotaryplate_home_cb=self.home)
 
         self.linphone = Linphone(user, password, host)
 
@@ -44,6 +45,12 @@ class Daemon:
 
     def on_other_hung_up(self):
         pass
+
+    def rotating(self):
+        print("The rotaryplate is not in its homeposition.")
+
+    def home(self):
+        print("The rotaryplate is in its homeposition.")
 
     def on_sigint(self):
         self.linphone.__exit__()
