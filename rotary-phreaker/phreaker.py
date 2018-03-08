@@ -22,6 +22,7 @@ class Daemon:
                              rotaryplate_not_home_cb=self.rotating, rotaryplate_home_cb=self.home)
 
         self.linphone = Linphone(user, password, host)
+        self.cur_number = ""
 
         # start thread
         self.linphone.start()
@@ -32,6 +33,7 @@ class Daemon:
 
     def on_hook_down(self):
         print("Hook was put down.")
+        self.cur_number = ""
         self.linphone.hang_up()
 
     def on_incoming_call(self):
@@ -52,9 +54,15 @@ class Daemon:
     def home(self, n):
         print("The rotaryplate is in its homeposition.")
         if n < 0:
-            print("Weird.")
+            print("Weird. Resetting.")
+            self.cur_number = ""
         else:
-            print("While it wasnt the number {} was found.".format(str(n)))
+            s_n = str(n)
+            print("While it wasnt the digit {} was found.".format(s_n))
+            self.cur_number += s_n
+            print("therefore the current dial number is: {}".format(self.cur_number))
+            # todo how to know if a number is completed?
+            # hopefully there's another way than timeouting after a few seconds without dial?!
 
     def on_sigint(self):
         self.linphone.__exit__()
