@@ -22,6 +22,9 @@ class Pi3Rotary:
         self._rot_not_home_cb = rotaryplate_not_home_cb
         self._rot_home_cb = rotaryplate_home_cb
         self.rotaryplate_not_home()
+
+        self._interrupt_counter = 0
+
         super().__init__()
 
     def hook_moved(self):
@@ -40,4 +43,14 @@ class Pi3Rotary:
             self._rot_not_home_cb()
         else:
             self._rot_not_home = 0
-            self._rot_home_cb()
+            n = self._digit_from_interrupts()
+            self._rot_home_cb(n)
+
+    def _digit_from_interrupts(self, ints=None):
+        if ints is None:
+            ints = self._interrupt_counter
+        if 10 == ints:
+            return 0
+        elif 0 == ints:
+            return -1
+        return ints

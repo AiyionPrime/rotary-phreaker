@@ -49,8 +49,12 @@ class Daemon:
     def rotating(self):
         print("The rotaryplate is not in its homeposition.")
 
-    def home(self):
+    def home(self, n):
         print("The rotaryplate is in its homeposition.")
+        if n < 0:
+            print("Weird.")
+        else:
+            print("While it wasnt the number {} was found.".format(str(n)))
 
     def on_sigint(self):
         self.linphone.__exit__()
