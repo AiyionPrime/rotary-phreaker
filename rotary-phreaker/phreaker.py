@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+import configparser
 import sys
-
 import signal
+
 from linphone import Linphone
 from pi_device import Pi3Rotary
 
@@ -10,10 +11,16 @@ class Daemon:
     def __init__(self):
         signal.signal(signal.SIGINT, self.on_sigint)
 
-        # todo read config
+        config = configparser.ConfigParser()
+        config.read("samples/config")
+
+        user = config.get("Credentials", "username")
+        password = config.get("Credentials", "password")
+        host = config.get("Credentials", "hostname")
+
         self.pi3 = Pi3Rotary(up_cb=self.on_hook_up, down_cb=self.on_hook_down)
 
-        self.linphone = Linphone("samus", "secretpasscode", "Gunship")
+        self.linphone = Linphone(user, password, host)
 
         # start thread
         self.linphone.start()
