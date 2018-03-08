@@ -24,3 +24,6 @@ class Linphone(Thread):
 
     def call(self, telephone_number):
         self._cmd("call sip:{}@{}".format(telephone_number, self.sip_credentials["host"]))
+
+    def hang_up(self):
+        self._cmd("terminate")
