@@ -27,3 +27,16 @@ class Linphone(Thread):
 
     def hang_up(self):
         self._cmd("terminate")
+
+    def run(self):
+        while True:
+            output = self._linphone.stdout.readline().rstrip()
+            if "contacting you" in output:
+                pass
+                # todo cb?
+            elif "terminated" in output:
+                pass
+                # todo cb?
+            elif "ended" in output:
+                pass
+                # todo cb?
