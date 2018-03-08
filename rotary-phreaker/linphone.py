@@ -21,3 +21,6 @@ class Linphone(Thread):
 
     def answer(self):
         self._cmd("answer")
+
+    def call(self, telephone_number):
+        self._cmd("call sip:{}@{}".format(telephone_number, self.sip_credentials["host"]))
