@@ -63,6 +63,8 @@ class Daemon:
             print("therefore the current dial number is: {}".format(self.cur_number))
             # todo how to know if a number is completed?
             # hopefully there's another way than timeouting after a few seconds without dial?!
+            # seems like one simply calls the unfinished number and watches out for upcoming errors
+            # like "484 Address Incomplete"
 
     def on_sigint(self):
         self.linphone.__exit__()
