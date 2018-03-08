@@ -4,14 +4,17 @@ import RPi.GPIO as GPIO
 
 
 class Pi3Rotary:
-    def __init__(self, up_cb, down_cb, rotaryplate_not_home_cb, rotaryplate_home_cb):
+    def __init__(self, up_cb, down_cb, rotaryplate_not_home_cb, rotaryplate_home_cb, rot_interrupt_cb):
         self._pins = {"hook": 16,
                       "dialing": 24,
                       "interrupt": 23}
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin_onhook, GPIO.IN)
+        GPIO.setup(self._pins["hook"], GPIO.IN)
+        GPIO.setup(self._pins["dialing"], GPIO.IN)
+        GPIO.setup(self._pins["interrupt"], GPIO.IN)
         GPIO.add_event_detect(self._pins["hook"], GPIO.BOTH, callback=self.hook_moved, bouncetime=100)
         GPIO.add_event_detect(self._pins["dialing"], GPIO.BOTH, callback=self.rotaryplate_not_home, bouncetime=100)
+        GPIO.add_event_detect(self._pins["interrupt"], GPIO.HIGH, callback=self.rotary_interrupt, bouncetime=100)
 
         self.hook_state = None
         self.hook_up_cb = up_cb
@@ -24,6 +27,7 @@ class Pi3Rotary:
         self.rotaryplate_not_home()
 
         self._interrupt_counter = 0
+        self._rotary_interrupt_cb = rot_interrupt_cb
 
         super().__init__()
 
@@ -54,3 +58,7 @@ class Pi3Rotary:
         elif 0 == ints:
             return -1
         return ints
+
+    def rotary_interrupt(self):
+        self._interrupt_counter += 1
+
