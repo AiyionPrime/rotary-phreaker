@@ -21,7 +21,10 @@ class Daemon:
         self.pi3 = Pi3Rotary(up_cb=self.on_hook_up, down_cb=self.on_hook_down,
                              rotaryplate_not_home_cb=self.rotating, rotaryplate_home_cb=self.home)
 
-        self.linphone = Linphone(user, password, host)
+        self.linphone = Linphone(user, password, host,
+                                 inc_cb=self.on_incoming_call,
+                                 hu_cb=self.on_self_hung_up,
+                                 r_hu_cb=self.on_other_hung_up)
         self.cur_number = ""
 
         # start thread
