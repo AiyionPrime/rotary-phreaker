@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 
 
 class Pi3Rotary:
-    def __init__(self, up_cb, down_cb, rotaryplate_not_home_cb, rotaryplate_home_cb, rot_interrupt_cb):
+    def __init__(self, up_cb, down_cb, rotaryplate_not_home_cb, rotaryplate_home_cb):
         self._pins = {"hook": 16,
                       "dialing": 24,
                       "interrupt": 23}
@@ -27,7 +27,6 @@ class Pi3Rotary:
         self.rotaryplate_not_home()
 
         self._interrupt_counter = 0
-        self._rotary_interrupt_cb = rot_interrupt_cb
 
         super().__init__()
 
