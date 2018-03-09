@@ -15,7 +15,7 @@ class UnittestTest(unittest.TestCase):
 
 class LinphoneTest(unittest.TestCase):
     def setUp(self):
-        self.p = Linphone("samus", "secretpasscode", "Gunship")
+        self.p = Linphone("samus", "secretpasscode", "Gunship", None, None, None)
 
     def test_lptype(self):
         self.assertEqual(type(self.p), Linphone)
