@@ -5,6 +5,8 @@ setup(name='rotary-phreaker',
       version='0.1',
       py_modules=['rotary-phreaker'],
       install_requires=[
-          'RPi.GPIO'
+          'RPi.GPIO',
+          'pyaudio',
+          'numpy'
       ]
       )
