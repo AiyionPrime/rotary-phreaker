@@ -4,6 +4,8 @@ import pyaudio
 import numpy as np
 from abc import ABC, abstractmethod
 
+from threading import Thread
+
 
 class Tone:
     def __init__(self, frequency, duration, volume):
@@ -41,14 +43,19 @@ class Silence(Tone):
         super().__init__(0, duration, 0)
 
 
-class CallProgressTone(ABC):
+class CallProgressTone(ABC, Thread):
     """Represent an abstract skeleton for call progress tones.
 
     Follow the definition in the
     "Technische Beschreibung der analogen Wählanschlüsse am T-Net/ISDN der T-Com (1TR110-1)"."""
     @abstractmethod
     def __init__(self, new_patterns):
+        super().__init__()
         self.patterns = new_patterns
+        self._run = True
+
+    def __exit__(self, *args):
+        self._run = False
 
     def _first(self):
         res = []
@@ -77,8 +84,7 @@ class CallProgressTone(ABC):
         for sample in fl:
             stream.write(sample.tobytes())
 
-        # fixme replace the outer for loop with something like self.run and let the class inherit from Thread
-        for i in range(15):
+        while self._run:
             for sample in sl:
                 stream.write(sample.tobytes())
 
