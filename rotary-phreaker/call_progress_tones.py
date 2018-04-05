@@ -13,6 +13,12 @@ class Tone:
         self.frequency = frequency
         self.duration = duration
         self.volume = volume
+        self.samples = self.gen_samples()
+
+    def __add__(self, other):
+        t = Tone(self.frequency, self.duration, self.volume)
+        t.samples += other.samples
+        return t
 
     def gen_samples(self):
         # generate samples, note conversion to float32 array
@@ -21,7 +27,6 @@ class Tone:
 
     def play(self):
         p = pyaudio.PyAudio()
-        samples = self.gen_samples()
 
         # for paFloat32 sample values must be in range [-1.0, 1.0]
         stream = p.open(format=pyaudio.paFloat32,
@@ -30,12 +35,22 @@ class Tone:
                         output=True)
 
         # play. May repeat with different volume values (if done interactively)
-        stream.write(samples.tobytes())
+        stream.write(self.samples.tobytes())
 
         stream.stop_stream()
         stream.close()
 
         p.terminate()
+
+
+class CosTone(Tone):
+    def __init__(self, frequency, duration, volume):
+        super().__init__(frequency, duration, volume)
+
+    def gen_samples(self):
+        # generate samples, note conversion to float32 array
+        return (np.cos(2 * np.pi * np.arange(self.fs * self.duration)
+                       * self.frequency / self.fs)).astype(np.float32) * self.volume
 
 
 class Silence(Tone):
@@ -60,13 +75,13 @@ class CallProgressTone(ABC, Thread):
     def _first(self):
         res = []
         for tone in self.patterns[0]:
-            res.append(tone.gen_samples())
+            res.append(tone.samples)
         return res
 
     def _second(self):
         res = []
         for tone in self.patterns[-1]:
-            res.append(tone.gen_samples())
+            res.append(tone.samples)
         return res
 
     def play_endlessly(self):
@@ -135,3 +150,29 @@ class Hinweiston(CallProgressTone):
     """1 TR 110-1, Kap. 8.8"""
     def __init__(self):
         super().__init__([[Tone(950, 0.33, 0.3), Tone(1400, 0.33, 0.3), Tone(1800, 0.33, 0.3), Silence(1)]])
+
+
+class Suchton1(CallProgressTone):
+    """1 TR 110-1, Kap. 8.9 """
+    def __init__(self):
+        super().__init__([[Tone(800, 1, 1.0)]])
+
+
+class Suchton2(CallProgressTone):
+    """1 TR 110-1, Kap. 8.9 """
+    def __init__(self):
+        super().__init__([[Tone(1100, 1, 1.0) + Tone(1200, 1, 1.0)]])
+
+
+class DisablingTon(CallProgressTone):
+    """1 TR 110-1, Kap. 8.9 """
+    def __init__(self):
+        super().__init__([[Tone(2100, 0.45, 1.0),
+                           CosTone(2100, 0.45, 1.0),
+                           Tone(2100, 0.45, 1.0),
+                           CosTone(2100, 0.45, 1.0),
+                           Tone(2100, 0.45, 1.0),
+                           CosTone(2100, 0.45, 1.0),
+                           Tone(2100, 0.45, 1.0),
+                           CosTone(2100, 0.45, 1.0),
+                           Tone(2100, 0.4, 1.0)], [Silence(1)]])
