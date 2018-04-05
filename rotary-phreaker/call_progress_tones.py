@@ -7,23 +7,11 @@ from abc import ABC, abstractmethod
 from threading import Thread
 
 
-class Tone:
-    def __init__(self, frequency, duration, volume):
+class Noise(ABC):
+    @abstractmethod
+    def __init__(self):
         self.fs = 44100  # sampling rate, Hz, must be integer
-        self.frequency = frequency
-        self.duration = duration
-        self.volume = volume
-        self.samples = self.gen_samples()
-
-    def __add__(self, other):
-        t = Tone(self.frequency, self.duration, self.volume)
-        t.samples += other.samples
-        return t
-
-    def gen_samples(self):
-        # generate samples, note conversion to float32 array
-        return (np.sin(2 * np.pi * np.arange(self.fs * self.duration)
-                       * self.frequency / self.fs)).astype(np.float32) * self.volume
+        self.samples = None
 
     def play(self):
         p = pyaudio.PyAudio()
@@ -41,6 +29,25 @@ class Tone:
         stream.close()
 
         p.terminate()
+
+
+class Tone(Noise):
+    def __init__(self, frequency, duration, volume):
+        super().__init__()
+        self.frequency = frequency
+        self.duration = duration
+        self.volume = volume
+        self.samples = self.gen_samples()
+
+    def __add__(self, other):
+        t = Tone(self.frequency, self.duration, self.volume)
+        t.samples += other.samples
+        return t
+
+    def gen_samples(self):
+        # generate samples, note conversion to float32 array
+        return (np.sin(2 * np.pi * np.arange(self.fs * self.duration)
+                       * self.frequency / self.fs)).astype(np.float32) * self.volume
 
 
 class CosTone(Tone):
@@ -113,6 +120,12 @@ class Waehlton(CallProgressTone):
     """1 TR 110-1, Kap. 8.1"""
     def __init__(self):
         super().__init__([[Tone(425, 1, 1.0)]])
+
+
+class Sonderwaehlton(CallProgressTone):
+    """1 TR 110-1, Kap. 8.2"""
+    def __init__(self):
+        super().__init__([[Tone(425, 1, 1.0) + Tone(400, 1, 1.0)]])
 
 
 class Freiton(CallProgressTone):
